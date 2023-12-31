@@ -25,7 +25,7 @@ pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
         ],
-        Style::default()
+        Style::default(),
     );
     let mut text = Text::from(Line::from(banner_text));
     text.patch_style(banner_style);
