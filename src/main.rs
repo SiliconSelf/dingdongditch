@@ -13,6 +13,9 @@ mod commands;
 mod net;
 mod term_utils;
 
+#[cfg(test)]
+mod tests;
+
 use anyhow::{Context, Result};
 
 fn main() -> Result<()> {
