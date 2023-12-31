@@ -1,11 +1,14 @@
+//! Structures and functions related to the text that displays the last error
+
 use ratatui::{
-    style::{Modifier, Style, Color},
+    style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::Paragraph,
 };
 
 use crate::appstate::App;
 
+/// Function to create the element
 pub(crate) fn error_element(app: &App) -> Paragraph<'_> {
     let (banner_text, banner_style) = (
         vec![

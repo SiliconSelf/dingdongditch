@@ -1,3 +1,5 @@
+//! Structures and functions related to the boxes
+
 use ratatui::{
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem},
@@ -5,6 +7,7 @@ use ratatui::{
 
 use crate::appstate::App;
 
+/// Create the box that contains the list of detected hosts
 pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     let hosts: Vec<ListItem> = app
         .hosts
@@ -20,6 +23,8 @@ pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     hosts
 }
 
+
+/// Create the box that shows the open ports on a given host
 pub(crate) fn ports_box_element(_app: &App) -> List<'_> {
     let ports: Vec<ListItem> = Vec::new();
     let ports = List::new(ports)

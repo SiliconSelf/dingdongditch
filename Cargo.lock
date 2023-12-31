@@ -97,6 +97,7 @@ dependencies = [
  "anyhow",
  "crossterm",
  "once_cell",
+ "parking_lot",
  "pnet",
  "ratatui",
  "regex",

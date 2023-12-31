@@ -1,3 +1,5 @@
+//! Terminal setup and restoration functions
+
 use std::io::{self, Stdout};
 
 use anyhow::{Context, Result};

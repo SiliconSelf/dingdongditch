@@ -10,7 +10,7 @@ use tui_input::backend::crossterm::EventHandler;
 
 mod appstate;
 mod commands;
-mod net;
+mod net_utils;
 mod term_utils;
 
 #[cfg(test)]
@@ -41,10 +41,10 @@ fn run_app<B: Backend>(
             term_utils::KeyHandlerEvents::None => {}
             term_utils::KeyHandlerEvents::Break => return Ok(()),
             term_utils::KeyHandlerEvents::ToEditing => {
-                app.input_mode = InputMode::Editing
+                app.input_mode = InputMode::Editing;
             }
             term_utils::KeyHandlerEvents::ToNormal => {
-                app.input_mode = InputMode::Normal
+                app.input_mode = InputMode::Normal;
             }
             term_utils::KeyHandlerEvents::KeyPress(key) => {
                 app.input.handle_event(&Event::Key(key));
@@ -56,16 +56,22 @@ fn run_app<B: Backend>(
         }
         // Process any new user commands
         if !app.messages.is_empty() {
-            for input in app.messages.drain(..) {
-                if let Some(command) = commands::parse_command(input) {
-                    use commands::Command;
-                    match command {
-                        Command::Quit => return Ok(()),
-                        Command::ChangeInterface(interface) => {
-                            app.interface_name = Some(interface)
-                        }
+            app.last_error = None;
+            let input = app.messages.pop().expect("We already know the array isn't empty");
+            if let Some(command) = commands::parse_command(&input) {
+                use commands::Command;
+                match command {
+                    Command::Quit => return Ok(()),
+                    Command::RescanInterfaces => { net_utils::rescan_interfaces(); }
+                    Command::ChangeInterface(interface) => {
+                        net_utils::change_interface(&mut app, interface);
+                    }
+                    Command::Listen => {
+                        app.listening = true;
                     }
                 }
+            } else {
+                app.last_error = Some(format!("Unknown command: {}", &input));
             }
         }
     }

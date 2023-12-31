@@ -1,29 +1,36 @@
+//! All UI related structures and functionality lives in here
+
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     Frame,
 };
 
 use crate::appstate::{App, InputMode};
-
 mod banner;
 mod boxes;
 mod input;
 mod last_error;
 
+/// Render the main UI of the app
 pub(crate) fn ui(f: &mut Frame, app: &App) {
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
         .constraints(
-            [Constraint::Length(1), Constraint::Min(1), Constraint::Length(1), Constraint::Length(3)]
-                .as_ref(),
+            [
+                Constraint::Length(1),
+                Constraint::Min(1),
+                Constraint::Length(1),
+                Constraint::Length(3),
+            ]
+            .as_ref(),
         )
         .split(f.size());
 
     let box_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .margin(0)
-        .vertical_margin(1)
+        .vertical_margin(0)
         .constraints([Constraint::Percentage(20), Constraint::Percentage(80)])
         .split(main_chunks[1]);
 
@@ -39,6 +46,7 @@ pub(crate) fn ui(f: &mut Frame, app: &App) {
 
     // Render input box
     let width = main_chunks[3].width.max(3) - 3; // keep 2 for borders and 1 for cursor
+    #[allow(clippy::as_conversions)]
     let scroll = app.input.visual_scroll(width as usize);
     f.render_widget(input::input_element(scroll, app), main_chunks[3]);
     match app.input_mode {
@@ -48,6 +56,8 @@ pub(crate) fn ui(f: &mut Frame, app: &App) {
         // Make the cursor visible and ask tui-rs to put it at the specified
         // coordinates after rendering
         InputMode::Editing => {
+            #[allow(clippy::as_conversions)]
+            #[allow(clippy::cast_possible_truncation)]
             f.set_cursor(
                 // Put cursor past the end of the input text
                 main_chunks[3].x
@@ -55,7 +65,7 @@ pub(crate) fn ui(f: &mut Frame, app: &App) {
                     + 1,
                 // Move one line down, from the border to the input line
                 main_chunks[3].y + 1,
-            )
+            );
         }
     }
 }

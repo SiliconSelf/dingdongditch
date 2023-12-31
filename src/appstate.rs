@@ -1,9 +1,14 @@
+//! Contains the entire global state of the application
+
 use std::net::IpAddr;
 
 use tui_input::Input;
 
+/// This enum represents the possible states of the text input box
 pub(crate) enum InputMode {
+    /// Unselected
     Normal,
+    /// Editing
     Editing,
 }
 
@@ -21,6 +26,8 @@ pub(crate) struct App {
     pub(crate) hosts: Vec<IpAddr>,
     /// Networking interface to use
     pub(crate) interface_name: Option<String>,
+    /// If passive listening is enabled
+    pub(crate) listening: bool
 }
 
 impl Default for App {
@@ -32,6 +39,7 @@ impl Default for App {
             last_error: None,
             hosts: Vec::new(),
             interface_name: None,
+            listening: false
         }
     }
 }

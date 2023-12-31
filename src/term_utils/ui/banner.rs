@@ -1,3 +1,5 @@
+//! Structures and functions related to the banner element at the top of the screen
+
 use ratatui::{
     style::{Modifier, Style},
     text::{Line, Span, Text},
@@ -6,6 +8,7 @@ use ratatui::{
 
 use crate::appstate::App;
 
+/// Create the banner element for the top of the screen
 pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
     let (banner_text, banner_style) = (
         vec![
@@ -19,6 +22,8 @@ pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::raw(" "),
+            Span::raw("Listening: "),
+            Span::styled(format!("{}", app.listening), Style::default().add_modifier(Modifier::BOLD))
         ],
         Style::default().add_modifier(Modifier::RAPID_BLINK),
     );
