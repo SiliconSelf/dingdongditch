@@ -4,14 +4,12 @@ use std::io;
 
 use appstate::{App, InputMode};
 use crossterm::event::Event;
-use ratatui::{
-    backend::Backend,
-    Terminal,
-};
+use ratatui::{backend::Backend, Terminal};
 use term_utils::{handle_keys, restore_terminal, setup_terminal};
 use tui_input::backend::crossterm::EventHandler;
 
 mod appstate;
+mod commands;
 mod net;
 mod term_utils;
 
@@ -38,9 +36,7 @@ fn run_app<B: Backend>(
         // Handle user input
         match handle_keys(&app.input_mode) {
             term_utils::KeyHandlerEvents::None => {}
-            term_utils::KeyHandlerEvents::Break => {
-                break;
-            }
+            term_utils::KeyHandlerEvents::Break => return Ok(()),
             term_utils::KeyHandlerEvents::ToEditing => {
                 app.input_mode = InputMode::Editing
             }
@@ -57,10 +53,15 @@ fn run_app<B: Backend>(
         }
         // Process any new user commands
         if !app.messages.is_empty() {
-            for _ in app.messages.drain(..) {
-                // TODO: Process user commands here
+            for input in app.messages.drain(..) {
+                if let Some(command) = commands::parse_command(input) {
+                    use commands::Command;
+                    match command {
+                        Command::Quit => return Ok(()),
+                        _ => {}
+                    }
+                }
             }
         }
     }
-    Ok(())
 }

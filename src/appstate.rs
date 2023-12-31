@@ -17,6 +17,8 @@ pub(crate) struct App {
     pub(crate) messages: Vec<String>,
     /// Detected hosts
     pub(crate) hosts: Vec<IpAddr>,
+    /// Networking interface to use
+    pub(crate) interface_name: Option<String>,
 }
 
 impl Default for App {
@@ -26,6 +28,7 @@ impl Default for App {
             input_mode: InputMode::Editing,
             messages: Vec::new(),
             hosts: Vec::new(),
+            interface_name: None,
         }
     }
 }

@@ -1,7 +1,7 @@
 mod input;
-mod window;
 mod ui;
+mod window;
 
 pub(crate) use input::*;
-pub(crate) use window::*;
 pub(crate) use ui::*;
+pub(crate) use window::*;
