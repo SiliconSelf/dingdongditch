@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "ddd"
+name = "ding"
 path = "src/main.rs"
 
 [profile.release]
