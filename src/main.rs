@@ -58,7 +58,7 @@ fn run_app<B: Backend>(
                     use commands::Command;
                     match command {
                         Command::Quit => return Ok(()),
-                        _ => {}
+                        Command::ChangeInterface(interface) => { app.interface_name = Some(interface) }
                     }
                 }
             }

@@ -99,6 +99,7 @@ dependencies = [
  "once_cell",
  "pnet",
  "ratatui",
+ "regex",
  "tui-input",
 ]
 
