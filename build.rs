@@ -1,5 +1,5 @@
 //! Codegen for Ding Dong Ditch
-//! 
+//!
 //! This script generates:
 //! [ ] Dictionary for port usage
 
@@ -9,6 +9,4 @@ fn generate_dictionary() -> HashMap<u16, Vec<String>> {
     todo!();
 }
 
-fn main() {
-
-}
+fn main() {}

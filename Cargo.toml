@@ -59,5 +59,8 @@ wildcard_dependencies = "warn"
 workspace = true
 
 [dependencies]
+anyhow = "1.0.78"
 crossterm = "0.27.0"
+once_cell = "1.19.0"
 ratatui = "0.25.0"
+tui-input = "0.8.0"

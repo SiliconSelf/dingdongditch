@@ -1,30 +1,66 @@
 #![doc = include_str!("../README.md")]
 
-use std::{io::{self, Stdout}, thread, time::Duration};
+use std::io;
 
-use crossterm::{terminal::{enable_raw_mode, EnterAlternateScreen, disable_raw_mode, LeaveAlternateScreen}, execute, event::{EnableMouseCapture, DisableMouseCapture}};
-use ratatui::{backend::CrosstermBackend, Terminal, widgets::{Block, Borders}};
+use appstate::{App, InputMode};
+use crossterm::event::Event;
+use ratatui::{
+    backend::Backend,
+    Terminal,
+};
+use term_utils::{handle_keys, restore_terminal, setup_terminal};
+use tui_input::backend::crossterm::EventHandler;
 
-fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>, io::Error> {
-    
+mod appstate;
+mod net;
+mod term_utils;
+
+use anyhow::{Context, Result};
+
+fn main() -> Result<()> {
+    let mut terminal = setup_terminal().context("Failed to set up terminal")?;
+
+    // Create the global app state and run the main logic loop until it returns
+    let app = App::default();
+    run_app(&mut terminal, app)?;
+
+    restore_terminal(&mut terminal)?;
+    Ok(())
 }
 
-fn main() -> Result<(), io::Error> {
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-    terminal.draw(|f| {
-        let size = f.size();
-        let block = Block::default()
-            .title("Ding Dong Ditch")
-            .borders(Borders::ALL);
-        f.render_widget(block, size);
-    })?;
-    thread::sleep(Duration::from_secs(1));
-    disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
-    terminal.show_cursor()?;
+/// Main logic loop
+fn run_app<B: Backend>(
+    terminal: &mut Terminal<B>,
+    mut app: App,
+) -> io::Result<()> {
+    loop {
+        terminal.draw(|f| term_utils::ui(f, &app))?;
+        // Handle user input
+        match handle_keys(&app.input_mode) {
+            term_utils::KeyHandlerEvents::None => {}
+            term_utils::KeyHandlerEvents::Break => {
+                break;
+            }
+            term_utils::KeyHandlerEvents::ToEditing => {
+                app.input_mode = InputMode::Editing
+            }
+            term_utils::KeyHandlerEvents::ToNormal => {
+                app.input_mode = InputMode::Normal
+            }
+            term_utils::KeyHandlerEvents::KeyPress(key) => {
+                app.input.handle_event(&Event::Key(key));
+            }
+            term_utils::KeyHandlerEvents::SendMessage => {
+                app.messages.push(app.input.value().into());
+                app.input.reset();
+            }
+        }
+        // Process any new user commands
+        if !app.messages.is_empty() {
+            for _ in app.messages.drain(..) {
+                // TODO: Process user commands here
+            }
+        }
+    }
     Ok(())
 }
