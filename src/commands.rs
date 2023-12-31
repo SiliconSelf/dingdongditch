@@ -3,7 +3,8 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-/// This Vec of compiled regular expressions is for parsing user commands. It's not the ideal solution, but it does work for now.
+/// This Vec of compiled regular expressions is for parsing user commands. It's
+/// not the ideal solution, but it does work for now.
 static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
     vec![
         (Regex::new(r"^q$").expect(""), Command::Quit),
@@ -20,17 +21,15 @@ static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
             Regex::new(r"^interface_rescan$").expect(""),
             Command::RescanInterfaces,
         ),
-        (
-            Regex::new(r"^ir$").expect(""),
-            Command::RescanInterfaces,
-        ),
+        (Regex::new(r"^ir$").expect(""), Command::RescanInterfaces),
         (Regex::new(r"^l$").expect(""), Command::Listen),
         (Regex::new(r"^listen$").expect(""), Command::Listen),
     ]
 });
 
 #[derive(PartialEq, Debug)]
-/// This enum represents every possible command the user can input along with any arguments
+/// This enum represents every possible command the user can input along with
+/// any arguments
 pub(crate) enum Command {
     /// Quit the program
     Quit,
@@ -46,7 +45,8 @@ pub(crate) enum Command {
 pub(crate) fn parse_command(input: &str) -> Option<Command> {
     for (pattern, command) in &*REGEXES {
         if pattern.is_match(input) {
-            let caps = pattern.captures(input).expect("We already know this matches");
+            let caps =
+                pattern.captures(input).expect("We already know this matches");
             return match command {
                 Command::Quit => Some(Command::Quit),
                 Command::RescanInterfaces => Some(Command::RescanInterfaces),

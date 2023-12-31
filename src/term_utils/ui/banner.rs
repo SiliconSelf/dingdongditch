@@ -1,4 +1,5 @@
-//! Structures and functions related to the banner element at the top of the screen
+//! Structures and functions related to the banner element at the top of the
+//! screen
 
 use ratatui::{
     style::{Modifier, Style},
@@ -23,7 +24,10 @@ pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
             ),
             Span::raw(" "),
             Span::raw("Listening: "),
-            Span::styled(format!("{}", app.listening), Style::default().add_modifier(Modifier::BOLD))
+            Span::styled(
+                format!("{}", app.listening),
+                Style::default().add_modifier(Modifier::BOLD),
+            ),
         ],
         Style::default().add_modifier(Modifier::RAPID_BLINK),
     );

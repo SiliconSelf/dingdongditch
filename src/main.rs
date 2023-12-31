@@ -57,12 +57,17 @@ fn run_app<B: Backend>(
         // Process any new user commands
         if !app.messages.is_empty() {
             app.last_error = None;
-            let input = app.messages.pop().expect("We already know the array isn't empty");
+            let input = app
+                .messages
+                .pop()
+                .expect("We already know the array isn't empty");
             if let Some(command) = commands::parse_command(&input) {
                 use commands::Command;
                 match command {
                     Command::Quit => return Ok(()),
-                    Command::RescanInterfaces => { net_utils::rescan_interfaces(); }
+                    Command::RescanInterfaces => {
+                        net_utils::rescan_interfaces();
+                    }
                     Command::ChangeInterface(interface) => {
                         net_utils::change_interface(&mut app, interface);
                     }
