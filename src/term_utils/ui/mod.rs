@@ -12,18 +12,22 @@ mod input;
 pub(crate) fn ui(f: &mut Frame, app: &App) {
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .margin(2)
+        .margin(1)
         .constraints(
-            [Constraint::Length(3), Constraint::Min(1), Constraint::Length(3)]
+            [Constraint::Length(1), Constraint::Min(1), Constraint::Length(3)]
                 .as_ref(),
         )
         .split(f.size());
 
     let box_chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .margin(1)
+        .margin(0)
+        .vertical_margin(1)
         .constraints([Constraint::Percentage(20), Constraint::Percentage(80)])
         .split(main_chunks[1]);
+
+    // Render banner
+    f.render_widget(banner::banner_element(app), main_chunks[0]);
 
     // Render boxes
     f.render_widget(boxes::hosts_box_element(app), box_chunks[0]);
