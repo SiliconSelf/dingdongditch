@@ -15,6 +15,8 @@ pub(crate) struct App {
     pub(crate) input_mode: InputMode,
     /// History of recorded messages
     pub(crate) messages: Vec<String>,
+    /// Last error from a bad command
+    pub(crate) last_error: Option<String>,
     /// Detected hosts
     pub(crate) hosts: Vec<IpAddr>,
     /// Networking interface to use
@@ -27,6 +29,7 @@ impl Default for App {
             input: Input::default(),
             input_mode: InputMode::Editing,
             messages: Vec::new(),
+            last_error: None,
             hosts: Vec::new(),
             interface_name: None,
         }
