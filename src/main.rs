@@ -67,7 +67,7 @@ fn run_app<B: Backend>(
                         net_utils::change_interface(&mut app, interface);
                     }
                     Command::Listen => {
-                        app.listening = true;
+                        app.listening = !app.listening;
                     }
                 }
             } else {
