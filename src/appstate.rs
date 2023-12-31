@@ -1,6 +1,8 @@
 //! Contains the entire global state of the application
 
-use std::{fmt::Display, net::IpAddr, sync::mpsc::Receiver};
+use std::{fmt::Display, net::IpAddr};
+
+use crossbeam_channel::Receiver;
 
 use parking_lot::RwLock;
 use pnet::{util::MacAddr, datalink::interfaces};

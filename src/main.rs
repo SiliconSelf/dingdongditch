@@ -77,7 +77,8 @@ fn run_app<B: Backend>(
                     Command::Listen => {
                         app.listening = !app.listening;
                         if app.listening {
-                            net_utils::listener::spawn_listener(&app);
+                            let receiver = net_utils::listener::spawn_listener(&app);
+                            app.listen_thread_rx = Some(receiver);
                         } else {
                             net_utils::listener::kill_listener(&app);
                         }
