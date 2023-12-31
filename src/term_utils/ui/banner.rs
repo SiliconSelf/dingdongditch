@@ -15,11 +15,7 @@ pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
         vec![
             Span::raw("Interface: "),
             Span::styled(
-                if let Some(i) = app.interface_name.clone() {
-                    i
-                } else {
-                    "None".to_owned()
-                },
+                &app.interface_name,
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::raw(" "),

@@ -10,7 +10,7 @@ use crate::appstate::App;
 /// Create the box that contains the list of detected hosts
 pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     let hosts: Vec<ListItem> = app
-        .hosts
+        .get_hosts()
         .iter()
         .enumerate()
         .map(|(i, m)| {

@@ -35,6 +35,10 @@ fn run_app<B: Backend>(
     mut app: App,
 ) -> io::Result<()> {
     loop {
+        // Get new data
+        if app.listening {
+            net_utils::listener::listen(&app);
+        }
         terminal.draw(|f| term_utils::ui(f, &app))?;
         // Handle user input
         match handle_keys(&app.input_mode) {
@@ -65,14 +69,18 @@ fn run_app<B: Backend>(
                 use commands::Command;
                 match command {
                     Command::Quit => return Ok(()),
-                    Command::RescanInterfaces => {
-                        net_utils::rescan_interfaces();
-                    }
                     Command::ChangeInterface(interface) => {
-                        net_utils::change_interface(&mut app, interface);
+                        net_utils::interface::change_interface(
+                            &mut app, interface,
+                        );
                     }
                     Command::Listen => {
                         app.listening = !app.listening;
+                        if app.listening {
+                            net_utils::listener::spawn_listener(&app);
+                        } else {
+                            net_utils::listener::kill_listener(&app);
+                        }
                     }
                 }
             } else {

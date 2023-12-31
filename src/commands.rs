@@ -17,11 +17,6 @@ static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
             Regex::new(r"^interface (\w+)$").expect(""),
             Command::ChangeInterface(String::new()),
         ),
-        (
-            Regex::new(r"^interface_rescan$").expect(""),
-            Command::RescanInterfaces,
-        ),
-        (Regex::new(r"^ir$").expect(""), Command::RescanInterfaces),
         (Regex::new(r"^l$").expect(""), Command::Listen),
         (Regex::new(r"^listen$").expect(""), Command::Listen),
     ]
@@ -35,8 +30,6 @@ pub(crate) enum Command {
     Quit,
     /// Change what interface the program is using
     ChangeInterface(String),
-    /// Rescan for new interfaces
-    RescanInterfaces,
     /// Toggle passive listening for host detection
     Listen,
 }
@@ -49,7 +42,6 @@ pub(crate) fn parse_command(input: &str) -> Option<Command> {
                 pattern.captures(input).expect("We already know this matches");
             return match command {
                 Command::Quit => Some(Command::Quit),
-                Command::RescanInterfaces => Some(Command::RescanInterfaces),
                 Command::ChangeInterface(_) => {
                     Some(Command::ChangeInterface(caps[1].to_string()))
                 }
