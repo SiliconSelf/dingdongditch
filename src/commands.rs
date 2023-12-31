@@ -5,8 +5,14 @@ static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
     vec![
         (Regex::new(r#"^q$"#).unwrap(), Command::Quit),
         (Regex::new(r#"^quit$"#).unwrap(), Command::Quit),
-        (Regex::new(r#"^i (\w+)$"#).unwrap(), Command::ChangeInterface(String::new())),
-        (Regex::new(r#"^interface (\w+)$"#).unwrap(), Command::ChangeInterface(String::new()))
+        (
+            Regex::new(r#"^i (\w+)$"#).unwrap(),
+            Command::ChangeInterface(String::new()),
+        ),
+        (
+            Regex::new(r#"^interface (\w+)$"#).unwrap(),
+            Command::ChangeInterface(String::new()),
+        ),
     ]
 });
 
@@ -21,10 +27,11 @@ pub(crate) fn parse_command(input: String) -> Option<Command> {
         if pattern.is_match(&input) {
             let caps = pattern.captures(&input).unwrap();
             return match command {
-                Command::Quit => { Some(Command::Quit) },
-                Command::ChangeInterface(_) => { Some(Command::ChangeInterface(caps[1].to_string()))
-                },
-            }
+                Command::Quit => Some(Command::Quit),
+                Command::ChangeInterface(_) => {
+                    Some(Command::ChangeInterface(caps[1].to_string()))
+                }
+            };
         }
     }
     None
