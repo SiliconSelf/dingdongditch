@@ -1,93 +1,34 @@
 #![doc = include_str!("../README.md")]
 
-use std::io;
-
-use appstate::{App, InputMode};
-use crossterm::event::Event;
 use ratatui::{backend::Backend, Terminal};
-use term_utils::{handle_keys, restore_terminal, setup_terminal};
-use tui_input::backend::crossterm::EventHandler;
 
-mod appstate;
+mod app;
 mod commands;
-mod net_utils;
+mod net;
 mod term_utils;
+mod ui;
 
-#[cfg(test)]
-mod tests;
-
-use anyhow::{Context, Result};
-
-fn main() -> Result<()> {
-    let mut terminal = setup_terminal().context("Failed to set up terminal")?;
-
-    // Create the global app state and run the main logic loop until it returns
-    let app = App::default();
-    run_app(&mut terminal, app)?;
-
-    restore_terminal(&mut terminal)?;
-    Ok(())
+/// The main logic loop of the app
+fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
+    loop {
+        // TODO: Get new data from listeners
+        // Draw UI
+        let Ok(_) = terminal.draw(ui::render_ui) else {
+            break;
+        };
+        // TODO: Process any user commands
+        todo!();
+    }
 }
 
-/// Main logic loop
-fn run_app<B: Backend>(
-    terminal: &mut Terminal<B>,
-    mut app: App,
-) -> io::Result<()> {
-    loop {
-        // Get new data
-        if app.listening {
-            net_utils::listener::listen(&app);
-        }
-        terminal.draw(|f| term_utils::ui(f, &app))?;
-        // Handle user input
-        match handle_keys(&app.input_mode) {
-            term_utils::KeyHandlerEvents::None => {}
-            term_utils::KeyHandlerEvents::Break => return Ok(()),
-            term_utils::KeyHandlerEvents::ToEditing => {
-                app.input_mode = InputMode::Editing;
-            }
-            term_utils::KeyHandlerEvents::ToNormal => {
-                app.input_mode = InputMode::Normal;
-            }
-            term_utils::KeyHandlerEvents::KeyPress(key) => {
-                app.input.handle_event(&Event::Key(key));
-            }
-            term_utils::KeyHandlerEvents::SendMessage => {
-                app.messages.push(app.input.value().into());
-                app.input.reset();
-            }
-        }
-        // Process any new user commands
-        if !app.messages.is_empty() {
-            app.last_error = None;
-            let input = app
-                .messages
-                .pop()
-                .expect("We already know the array isn't empty");
-            if let Some(command) = commands::parse_command(&input) {
-                use commands::Command;
-                match command {
-                    Command::Quit => return Ok(()),
-                    Command::ChangeInterface(interface) => {
-                        net_utils::interface::change_interface(
-                            &mut app, interface,
-                        );
-                    }
-                    Command::Listen => {
-                        app.listening = !app.listening;
-                        if app.listening {
-                            let receiver =
-                                net_utils::listener::spawn_listener(&app);
-                            app.listen_thread_rx = Some(receiver);
-                        } else {
-                            net_utils::listener::kill_listener(&app);
-                        }
-                    }
-                }
-            } else {
-                app.last_error = Some(format!("Unknown command: {}", &input));
-            }
-        }
-    }
+fn main() {
+    let mut terminal =
+        term_utils::setup_terminal().expect("Failed to configure terminal");
+
+    logic_loop(&mut terminal);
+
+    term_utils::restore_terminal(&mut terminal).expect(
+        "Failed to restore terminal to its original state. Your terminal is \
+         probably broken and needs to be restarted.",
+    );
 }
