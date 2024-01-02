@@ -7,6 +7,8 @@ use parking_lot::RwLock;
 use pnet::{datalink::interfaces, util::MacAddr};
 use tui_input::Input;
 
+use crate::net_utils;
+
 /// This enum represents the possible states of the text input box
 pub(crate) enum InputMode {
     /// Unselected
@@ -17,20 +19,33 @@ pub(crate) enum InputMode {
 
 /// Whether we have a MAC address or IP address for a host
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub(crate) enum Host {
-    /// We only have a MAC address
-    Mac(MacAddr),
-    /// We have discovered an IP
-    Ip(IpAddr),
+pub(crate) struct Host {
+    mac_address: MacAddr,
+    ip_address: Option<IpAddr>,
+    domain_name: Option<String>,
+    open_ports: Vec<u16>
 }
 
 impl Display for Host {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Host::Mac(a) => {
-                write!(f, "{a}")
-            }
-            Host::Ip(a) => write!(f, "{a}"),
+        let mut display: String = self.mac_address.to_string();
+        if let Some(ip) = self.ip_address {
+            display = format!("{ip}");
+        }
+        if let Some(domain) = &self.domain_name {
+            display = domain.clone();
+        }
+        write!(f, "{display}")
+    }
+}
+
+impl Host {
+    fn new(mac_address: MacAddr) -> Self {
+        Self {
+            mac_address,
+            ip_address: None,
+            domain_name: None,
+            open_ports: Vec::new()
         }
     }
 }
@@ -57,17 +72,13 @@ pub(crate) struct App {
 
 impl Default for App {
     fn default() -> App {
-        let interfaces = interfaces();
-        let Some(first_interface) = interfaces.first() else {
-            panic!("No interfaces are connected")
-        };
         App {
             input: Input::default(),
             input_mode: InputMode::Editing,
             messages: Vec::new(),
             last_error: None,
             hosts: RwLock::new(HashSet::new()),
-            interface_name: first_interface.name.clone(),
+            interface_name: net_utils::interface::find_default_interface().name,
             listening: false,
             listen_thread_rx: None,
         }
@@ -78,12 +89,7 @@ impl App {
     /// Add a new mac address host if it doesn't already exist.
     pub(crate) fn new_mac(&self, new: MacAddr) {
         let mut write_handle = self.hosts.write();
-        write_handle.insert(Host::Mac(new));
-    }
-
-    /// Associate an IP with a MAC
-    pub(crate) fn upgrade_to_ip(&self, mac: MacAddr, ip: IpAddr) {
-        todo!();
+        write_handle.insert(Host::new(new));
     }
 
     /// Get all currently stored hosts
