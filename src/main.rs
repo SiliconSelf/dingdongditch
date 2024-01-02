@@ -41,8 +41,10 @@ fn main() {
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout))
         .expect("Creating a terminal should always succeed");
 
+    // Run the main program logic loop
     logic_loop(&mut terminal);
 
+    // Restore terminal to its original state
     disable_raw_mode().expect("Disabling raw mode should always succeed.");
     execute!(terminal.backend_mut(), LeaveAlternateScreen)
         .expect("Leaving the alternate screen should always succeeed");
