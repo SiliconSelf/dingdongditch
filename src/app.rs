@@ -11,7 +11,7 @@ use parking_lot::RwLock;
 use pnet::datalink::interfaces;
 use tui_input::Input;
 
-use crate::net::{Host, find_plausible_interface};
+use crate::net::{Host, find_plausible_interface, interface_exists};
 
 /// Static value that acts as a thread-safe single source of truth for the
 /// application state
@@ -26,6 +26,10 @@ pub(crate) enum InputMode {
     Editing,
     /// The textbox is deselected
     Normal,
+}
+
+pub(crate) enum Errors {
+    NoSuchInterface
 }
 
 /// Global application state
@@ -127,5 +131,15 @@ impl App {
     /// Get the current interface name
     pub(crate) fn get_interface_name(&self) -> &str {
         &self.interface_name
+    }
+
+    /// Change the current interface
+    pub(crate) fn interface_name(&mut self, interface_name: String) -> Result<(), Errors> {
+        if interface_exists(&interface_name) {
+            self.interface_name = interface_name;
+            Ok(())
+        } else {
+            Err(Errors::NoSuchInterface)
+        }
     }
 }

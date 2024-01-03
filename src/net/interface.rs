@@ -1,6 +1,6 @@
 //! Functionality related to raw interface bindings and Layer 2 networking
 
-use pnet::datalink::interfaces;
+use pnet::datalink::{interfaces, NetworkInterface};
 
 /// Get the name of the first plausible interface
 ///
@@ -20,4 +20,17 @@ pub(crate) fn find_plausible_interface() -> Option<String> {
         potential_ipv4.is_some()
     });
     plausible_interface.map(|i| i.name.clone())
+}
+
+/// Get an interface from its name as a String
+fn interface_from_name(
+    interface_name: &str,
+) -> Option<NetworkInterface> {
+    let interfaces = interfaces();
+    interfaces.iter().find(|f| f.name == interface_name).cloned()
+}
+
+/// Test if a given interface name exists
+pub(crate) fn interface_exists(interface_name: &str) -> bool {
+    interface_from_name(interface_name).is_some()
 }
