@@ -28,7 +28,6 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
             break;
         };
         // TODO: Process any user commands
-        todo!();
     }
 }
 

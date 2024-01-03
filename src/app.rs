@@ -8,6 +8,7 @@ use std::collections::HashSet;
 
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
+use tui_input::Input;
 
 use crate::net::Host;
 
@@ -16,10 +17,27 @@ use crate::net::Host;
 pub(crate) static APP_STATE: Lazy<RwLock<App>> =
     Lazy::new(|| RwLock::new(App::default()));
 
+/// What modes that UI input box can be in
+#[derive(Default)]
+pub(crate) enum InputMode {
+    /// The text is being edited
+    #[default]
+    Editing,
+    /// The textbox is deselected
+    Normal
+}
+
 /// Global application state
 #[derive(Default)]
 pub(crate) struct App {
+    /// Hosts that have been detected by the program
     detected_hosts: HashSet<Host>,
+    /// The last error output by the program to display in the UI
+    last_error: Option<String>,
+    /// The current text box mode
+    input_mode: InputMode,
+    /// The current input in the text box
+    input: Input
 }
 
 // impl Default for App {
@@ -31,7 +49,24 @@ pub(crate) struct App {
 // }
 
 impl App {
-    fn add_host(&mut self, new_host: Host) {
+    /// Add a host to the internal `HashSet`
+    pub(crate) fn add_host(&mut self, new_host: Host) {
         self.detected_hosts.insert(new_host);
+    }
+    /// Get a reference to the internal `HashSet`
+    pub(crate) fn get_hosts(&self) -> &HashSet<Host> {
+        &self.detected_hosts
+    }
+    /// Get a reference to the last error
+    pub(crate) fn get_last_error(&self) -> &Option<String> {
+        &self.last_error
+    }
+    /// Get a reference to the current input mode
+    pub(crate) fn get_input_mode(&self) -> &InputMode {
+        &self.input_mode
+    }
+    /// Get a reference to the current input
+    pub(crate) fn get_input(&self) -> &Input {
+        &self.input
     }
 }

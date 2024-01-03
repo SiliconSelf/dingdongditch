@@ -2,7 +2,7 @@
 //!
 //! See `net` module documentation for a broader overview
 
-use std::net::IpAddr;
+use std::{fmt::Display, net::IpAddr};
 
 use pnet::util::MacAddr;
 
@@ -17,6 +17,19 @@ pub(crate) struct Host {
     domain_name: Option<String>,
     /// The open ports of the host. None if the host hasn't been scanned
     ports: Option<Vec<u16>>,
+}
+
+impl Display for Host {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut text = self.mac_address.to_string();
+        if let Some(ip) = self.ip_address {
+            text = ip.to_string();
+        };
+        if let Some(name) = &self.domain_name {
+            text = name.to_owned();
+        };
+        write!(f, "{text}")
+    }
 }
 
 impl Host {
