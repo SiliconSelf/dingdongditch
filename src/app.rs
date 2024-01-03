@@ -8,9 +8,10 @@ use std::collections::{HashSet, VecDeque};
 
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
+use pnet::datalink::interfaces;
 use tui_input::Input;
 
-use crate::net::Host;
+use crate::net::{Host, find_plausible_interface};
 
 /// Static value that acts as a thread-safe single source of truth for the
 /// application state
@@ -28,7 +29,6 @@ pub(crate) enum InputMode {
 }
 
 /// Global application state
-#[derive(Default)]
 pub(crate) struct App {
     /// Hosts that have been detected by the program
     detected_hosts: HashSet<Host>,
@@ -40,15 +40,28 @@ pub(crate) struct App {
     input: Input,
     /// The current queue of commands to process
     commands: VecDeque<String>,
+    /// The currently selected interface
+    interface_name: String,
 }
 
-// impl Default for App {
-//     fn default() -> Self {
-//         Self {
-//             detected_hosts: HashSet::new()
-//         }
-//     }
-// }
+impl Default for App {
+    fn default() -> Self {
+        let interface;
+        if let Some(i) = find_plausible_interface() {
+            interface = i;
+        } else {
+            interface = interfaces()[0].name.clone();
+        }
+        Self {
+            detected_hosts: HashSet::new(),
+            last_error: None,
+            input_mode: InputMode::default(),
+            input: Input::default(),
+            commands: VecDeque::new(),
+            interface_name: interface,
+        }
+    }
+}
 
 impl App {
     /// Add a host to the internal `HashSet`
@@ -109,5 +122,10 @@ impl App {
     /// Set the last error to a new String or clear it with None
     pub(crate) fn last_error(&mut self, last_error: Option<String>) {
         self.last_error = last_error;
+    }
+
+    /// Get the current interface name
+    pub(crate) fn get_interface_name(&self) -> &str {
+        &self.interface_name
     }
 }
