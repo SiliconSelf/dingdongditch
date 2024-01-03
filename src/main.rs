@@ -36,12 +36,10 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
         let mut write_handle = APP_STATE.write();
         let shared_commands = write_handle.get_commands_mut();
         if !shared_commands.is_empty() {
-            println!("Commands not empty");
             let commands: VecDeque<String> = std::mem::take(shared_commands);
             for command in commands {
                 match Command::try_from(command.clone()) {
                     Ok(Command::Quit) => {
-                        println!("Called quit");
                         return;
                     }
                     Err(Errors::UnknownCommand) => {
@@ -66,7 +64,6 @@ fn main() {
 
     // Run the main program logic loop
     logic_loop(&mut terminal);
-    println!("Loop returned");
 
     // Restore terminal to its original state
     disable_raw_mode().expect("Disabling raw mode should always succeed.");

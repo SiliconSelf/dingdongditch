@@ -17,7 +17,6 @@ pub(crate) fn handle_keys() {
             }
             InputMode::Editing => match key.code {
                 KeyCode::Enter => {
-                    println!("Enter pressed");
                     // Unfortunately we need to clone here to free up the
                     // mutable reference to write_handle. I would like to find a
                     // better way to do this at some point.
