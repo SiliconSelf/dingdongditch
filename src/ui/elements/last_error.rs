@@ -1,5 +1,5 @@
 //! Displays the last error
-//! 
+//!
 //! See `elements` module documentation for more details
 
 use ratatui::{

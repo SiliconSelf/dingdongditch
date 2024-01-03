@@ -38,13 +38,23 @@ pub(crate) fn render_ui(frame: &mut Frame) {
     // Render banner
     frame.render_widget(elements::banner_element(read_handle), main_chunks[0]);
     // Render boxes
-    frame.render_widget(elements::hosts_box_element(read_handle), box_chunks[0]);
-    frame.render_widget(elements::details_box_element(read_handle), box_chunks[1]);
+    frame
+        .render_widget(elements::hosts_box_element(read_handle), box_chunks[0]);
+    frame.render_widget(
+        elements::details_box_element(read_handle),
+        box_chunks[1],
+    );
     // Render last error
-    frame.render_widget(elements::last_error_element(read_handle), main_chunks[2]);
+    frame.render_widget(
+        elements::last_error_element(read_handle),
+        main_chunks[2],
+    );
     // Render input box
     let width = main_chunks[3].width.max(3) - 3; // keep 2 for borders and 1 for cursor
     #[allow(clippy::as_conversions)]
     let scroll = read_handle.get_input().visual_scroll(width as usize);
-    frame.render_widget(elements::input_element(scroll, read_handle), main_chunks[3]);
+    frame.render_widget(
+        elements::input_element(scroll, read_handle),
+        main_chunks[3],
+    );
 }

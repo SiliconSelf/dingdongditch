@@ -24,7 +24,7 @@ pub(crate) enum InputMode {
     #[default]
     Editing,
     /// The textbox is deselected
-    Normal
+    Normal,
 }
 
 /// Global application state
@@ -37,7 +37,9 @@ pub(crate) struct App {
     /// The current text box mode
     input_mode: InputMode,
     /// The current input in the text box
-    input: Input
+    input: Input,
+    /// The current queue of commands to process
+    commands: Vec<String>,
 }
 
 // impl Default for App {
@@ -53,20 +55,55 @@ impl App {
     pub(crate) fn add_host(&mut self, new_host: Host) {
         self.detected_hosts.insert(new_host);
     }
+
     /// Get a reference to the internal `HashSet`
     pub(crate) fn get_hosts(&self) -> &HashSet<Host> {
         &self.detected_hosts
     }
+
+    /// Get a mutable reference to the internal `HashSet`
+    pub(crate) fn get_hosts_mut(&mut self) -> &mut HashSet<Host> {
+        &mut self.detected_hosts
+    }
+
     /// Get a reference to the last error
     pub(crate) fn get_last_error(&self) -> &Option<String> {
         &self.last_error
     }
+
     /// Get a reference to the current input mode
     pub(crate) fn get_input_mode(&self) -> &InputMode {
         &self.input_mode
     }
+
+    /// Get a mutable reference to the current input mode
+    pub(crate) fn input_mode(&mut self, new_mode: InputMode) {
+        self.input_mode = new_mode;
+    }
+
     /// Get a reference to the current input
     pub(crate) fn get_input(&self) -> &Input {
         &self.input
+    }
+
+    /// Get a mutable reference to the input
+    pub(crate) fn get_input_mut(&mut self) -> &mut Input {
+        &mut self.input
+    }
+
+    pub(crate) fn get_commands(&self) -> &Vec<String> {
+        &self.commands
+    }
+
+    pub(crate) fn get_commands_mut(&mut self) -> &mut Vec<String> {
+        &mut self.commands
+    }
+
+    pub(crate) fn push_command(&mut self, command: &str) {
+        self.commands.push(command.to_owned());
+    }
+
+    pub(crate) fn last_error(&mut self, last_error: Option<String>) {
+        self.last_error = last_error;
     }
 }

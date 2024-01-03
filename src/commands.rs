@@ -40,7 +40,7 @@ impl TryFrom<String> for Command {
 
     /// Attempt to parse a user command provided as a String
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        for (pattern, command) in &*REGEXES {
+        for (pattern, command) in REGEXES.iter() {
             if pattern.is_match(&value) {
                 // This variable will be used for commands with arguments later
                 let _captures = pattern.captures(&value).expect(

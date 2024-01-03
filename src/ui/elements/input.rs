@@ -1,5 +1,5 @@
 //! The textbox for entering commands
-//! 
+//!
 //! See `elements` module documentation for more detail
 
 use ratatui::{
@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::app::{InputMode, App};
+use crate::app::{App, InputMode};
 
 /// Create the input box
 pub(crate) fn input_element(scroll: usize, app: &App) -> Paragraph<'_> {

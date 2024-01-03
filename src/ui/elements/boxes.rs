@@ -10,7 +10,7 @@ use ratatui::{
 
 use crate::app::App;
 
-/// 
+///
 pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     let hosts: Vec<ListItem> = app
         .get_hosts()
@@ -26,7 +26,7 @@ pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     hosts
 }
 
-/// 
+///
 pub(crate) fn details_box_element(_app: &App) -> List<'_> {
     let details: Vec<ListItem> = Vec::new();
     List::new(details)
