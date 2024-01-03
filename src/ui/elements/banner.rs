@@ -8,7 +8,7 @@ use ratatui::{
     widgets::Paragraph,
 };
 
-use crate::app::{App, APP_STATE};
+use crate::app::App;
 
 /// Creates the banner element
 pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {

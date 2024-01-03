@@ -6,10 +6,10 @@
 
 use std::collections::{HashSet, VecDeque};
 
-use crossbeam_channel::Receiver;
+
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
-use pnet::{datalink::interfaces, util::MacAddr};
+use pnet::datalink::interfaces;
 use tui_input::Input;
 
 use crate::net::{find_plausible_interface, interface_exists, Host};
@@ -29,7 +29,9 @@ pub(crate) enum InputMode {
     Normal,
 }
 
+/// Errors that can be returned from functions in this module
 pub(crate) enum Errors {
+    /// No interface with that name exists
     NoSuchInterface,
 }
 
@@ -83,9 +85,9 @@ impl App {
     }
 
     /// Get a mutable reference to the internal `HashSet`
-    pub(crate) fn get_hosts_mut(&mut self) -> &mut HashSet<Host> {
-        &mut self.detected_hosts
-    }
+    // pub(crate) fn get_hosts_mut(&mut self) -> &mut HashSet<Host> {
+    //     &mut self.detected_hosts
+    // }
 
     /// Get a reference to the last error
     pub(crate) fn get_last_error(&self) -> &Option<String> {
@@ -113,9 +115,9 @@ impl App {
     }
 
     /// Get a reference to the queued commands
-    pub(crate) fn get_commands(&self) -> &VecDeque<String> {
-        &self.commands
-    }
+    // pub(crate) fn get_commands(&self) -> &VecDeque<String> {
+    //     &self.commands
+    // }
 
     /// Get a mutable reference to the queued commands
     pub(crate) fn get_commands_mut(&mut self) -> &mut VecDeque<String> {
@@ -142,7 +144,7 @@ impl App {
         &mut self,
         interface_name: &str,
     ) -> Result<(), Errors> {
-        if interface_exists(&interface_name) {
+        if interface_exists(interface_name) {
             self.interface_name = interface_name.to_owned();
             Ok(())
         } else {
