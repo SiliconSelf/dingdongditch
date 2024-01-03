@@ -55,6 +55,7 @@ pub(crate) fn spawn_listener() -> Receiver<MacAddr> {
     thread_rx
 }
 
+/// Kill the currently running listener thread
 pub(crate) fn kill_listener() {
     let mut write_handle = LISTENER_THREAD.write();
     *write_handle = None;
