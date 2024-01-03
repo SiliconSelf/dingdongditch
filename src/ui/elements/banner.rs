@@ -8,7 +8,7 @@ use ratatui::{
     widgets::Paragraph,
 };
 
-use crate::app::App;
+use crate::app::{App, APP_STATE};
 
 /// Creates the banner element
 pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
@@ -21,12 +21,20 @@ pub(crate) fn banner_element(app: &App) -> Paragraph<'_> {
             ),
             Span::raw(" "),
             Span::raw("Listening: "),
-            Span::styled(
-                "false",
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(ratatui::style::Color::Red),
-            ),
+            match app.get_listening() {
+                true => Span::styled(
+                    "true",
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(ratatui::style::Color::Green),
+                ),
+                false => Span::styled(
+                    "false",
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(ratatui::style::Color::Red),
+                ),
+            },
         ],
         Style::default(),
     );
