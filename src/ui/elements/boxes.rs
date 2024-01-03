@@ -1,13 +1,16 @@
-//! Structures and functions related to the boxes
+//! Contains the box elements in the middle of the screen for displaying hosts
+//! and details
+//!
+//! See `elements` module documentation for more details
 
 use ratatui::{
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem},
 };
 
-use crate::appstate::App;
+use crate::app::App;
 
-/// Create the box that contains the list of detected hosts
+///
 pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     let hosts: Vec<ListItem> = app
         .get_hosts()
@@ -23,10 +26,9 @@ pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
     hosts
 }
 
-/// Create the box that shows the open ports on a given host
-pub(crate) fn ports_box_element(_app: &App) -> List<'_> {
-    let ports: Vec<ListItem> = Vec::new();
-    let ports = List::new(ports)
-        .block(Block::default().borders(Borders::ALL).title("Ports"));
-    ports
+///
+pub(crate) fn details_box_element(_app: &App) -> List<'_> {
+    let details: Vec<ListItem> = Vec::new();
+    List::new(details)
+        .block(Block::default().borders(Borders::ALL).title("Details"))
 }

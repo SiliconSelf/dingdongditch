@@ -1,10 +1,20 @@
-//! Lmao
+//! Code for parsing commands input by the user and returning them as
+//! machine-readable enum variants.
+//!
+//! This works by comparing the input commands against a lazily-evaluated Vec of
+//! Regex matchers. If any of the expressions are a match, only then will the
+//! much more computationally expensive task of capturing arguments be
+//! performed.
+//!
+//! This is almost certainly not the best way to do this, but it's simple and
+//! serves our purposes for now. If needed, the most likely better solution is
+//! bringing in an extra library like clap. Anything more complicated than this
+//! approach will be done better by a dedicated tool.
 
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-/// This Vec of compiled regular expressions is for parsing user commands. It's
-/// not the ideal solution, but it does work for now.
+/// The Vec of compiled regular expressions
 static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
     vec![
         (Regex::new(r"^q$").expect(""), Command::Quit),
@@ -22,32 +32,44 @@ static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
     ]
 });
 
-#[derive(PartialEq, Debug)]
-/// This enum represents every possible command the user can input along with
-/// any arguments
+/// The valid commands that can be entered by a user
+#[derive(PartialEq)]
 pub(crate) enum Command {
-    /// Quit the program
+    /// Quit the program.
     Quit,
-    /// Change what interface the program is using
+    /// Change networking interface to the provided name
     ChangeInterface(String),
-    /// Toggle passive listening for host detection
+    /// Toggle the listener on the selected interface
     Listen,
 }
 
-/// Parse a provided String to try to find a command
-pub(crate) fn parse_command(input: &str) -> Option<Command> {
-    for (pattern, command) in &*REGEXES {
-        if pattern.is_match(input) {
-            let caps =
-                pattern.captures(input).expect("We already know this matches");
-            return match command {
-                Command::Quit => Some(Command::Quit),
-                Command::ChangeInterface(_) => {
-                    Some(Command::ChangeInterface(caps[1].to_string()))
-                }
-                Command::Listen => Some(Command::Listen),
-            };
+/// Possible errors that can be encountered while parsing a command
+pub(crate) enum Errors {
+    /// The command does not match any regex
+    UnknownCommand,
+}
+
+impl TryFrom<String> for Command {
+    type Error = Errors;
+
+    /// Attempt to parse a user command provided as a String
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        for (pattern, command) in REGEXES.iter() {
+            if pattern.is_match(&value) {
+                // This variable will be used for commands with arguments later
+                let captures = pattern.captures(&value).expect(
+                    "This should always succeed because we already know the \
+                     pattern matches",
+                );
+                return match command {
+                    Command::Quit => Ok(Command::Quit),
+                    Command::ChangeInterface(_) => {
+                        Ok(Command::ChangeInterface(captures[1].to_owned()))
+                    }
+                    Command::Listen => Ok(Command::Listen),
+                };
+            }
         }
+        Err(Errors::UnknownCommand)
     }
-    None
 }

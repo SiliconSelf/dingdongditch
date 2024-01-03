@@ -1,93 +1,92 @@
 #![doc = include_str!("../README.md")]
 
-use std::io;
+use std::{collections::VecDeque, io};
 
-use appstate::{App, InputMode};
-use crossterm::event::Event;
-use ratatui::{backend::Backend, Terminal};
-use term_utils::{handle_keys, restore_terminal, setup_terminal};
-use tui_input::backend::crossterm::EventHandler;
+use app::APP_STATE;
+use commands::{Command, Errors};
+use crossterm::{
+    execute,
+    terminal::{
+        disable_raw_mode, enable_raw_mode, EnterAlternateScreen,
+        LeaveAlternateScreen,
+    },
+};
+use net::Host;
+use ratatui::{
+    backend::{Backend, CrosstermBackend},
+    Terminal,
+};
 
-mod appstate;
+mod app;
 mod commands;
-mod net_utils;
-mod term_utils;
+mod key_handler;
+mod net;
+mod ui;
 
-#[cfg(test)]
-mod tests;
-
-use anyhow::{Context, Result};
-
-fn main() -> Result<()> {
-    let mut terminal = setup_terminal().context("Failed to set up terminal")?;
-
-    // Create the global app state and run the main logic loop until it returns
-    let app = App::default();
-    run_app(&mut terminal, app)?;
-
-    restore_terminal(&mut terminal)?;
-    Ok(())
-}
-
-/// Main logic loop
-fn run_app<B: Backend>(
-    terminal: &mut Terminal<B>,
-    mut app: App,
-) -> io::Result<()> {
+/// The main logic loop of the app
+fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
     loop {
-        // Get new data
-        if app.listening {
-            net_utils::listener::listen(&app);
+        // Get new data from listener
+        if let Some(new_addresses) = net::listen() {
+            let mut write_handle = APP_STATE.write();
+            for new in new_addresses {
+                write_handle.add_host(Host::new(new));
+            }
         }
-        terminal.draw(|f| term_utils::ui(f, &app))?;
+        // Draw UI
+        let Ok(_) = terminal.draw(ui::render_ui) else {
+            break;
+        };
         // Handle user input
-        match handle_keys(&app.input_mode) {
-            term_utils::KeyHandlerEvents::None => {}
-            term_utils::KeyHandlerEvents::Break => return Ok(()),
-            term_utils::KeyHandlerEvents::ToEditing => {
-                app.input_mode = InputMode::Editing;
-            }
-            term_utils::KeyHandlerEvents::ToNormal => {
-                app.input_mode = InputMode::Normal;
-            }
-            term_utils::KeyHandlerEvents::KeyPress(key) => {
-                app.input.handle_event(&Event::Key(key));
-            }
-            term_utils::KeyHandlerEvents::SendMessage => {
-                app.messages.push(app.input.value().into());
-                app.input.reset();
-            }
-        }
-        // Process any new user commands
-        if !app.messages.is_empty() {
-            app.last_error = None;
-            let input = app
-                .messages
-                .pop()
-                .expect("We already know the array isn't empty");
-            if let Some(command) = commands::parse_command(&input) {
-                use commands::Command;
-                match command {
-                    Command::Quit => return Ok(()),
-                    Command::ChangeInterface(interface) => {
-                        net_utils::interface::change_interface(
-                            &mut app, interface,
-                        );
+        key_handler::handle_keys();
+        // Process any user commands
+        let mut write_handle = APP_STATE.write();
+        let shared_commands = write_handle.get_commands_mut();
+        if !shared_commands.is_empty() {
+            let commands: VecDeque<String> = std::mem::take(shared_commands);
+            for command in commands {
+                match Command::try_from(command.clone()) {
+                    Ok(Command::Quit) => {
+                        return;
                     }
-                    Command::Listen => {
-                        app.listening = !app.listening;
-                        if app.listening {
-                            let receiver =
-                                net_utils::listener::spawn_listener(&app);
-                            app.listen_thread_rx = Some(receiver);
-                        } else {
-                            net_utils::listener::kill_listener(&app);
+                    Ok(Command::Listen) => {
+                        write_handle.toggle_listening();
+                    }
+                    Ok(Command::ChangeInterface(i)) => {
+                        match write_handle.interface_name(&i) {
+                            Ok(()) => {}
+                            Err(app::Errors::NoSuchInterface) => write_handle
+                                .last_error(Some(format!(
+                                    "No such interface: {i}"
+                                ))),
                         }
                     }
+                    Err(Errors::UnknownCommand) => {
+                        write_handle.last_error(Some(format!(
+                            "Unknown Command: {command}"
+                        )));
+                    }
                 }
-            } else {
-                app.last_error = Some(format!("Unknown command: {}", &input));
             }
         }
     }
+}
+
+fn main() {
+    // Set up terminal for ratatui
+    let mut stdout = io::stdout();
+    enable_raw_mode().expect("Enabling raw mode should always succeed");
+    execute!(stdout, EnterAlternateScreen)
+        .expect("Entering an alternate screen should always succeed");
+    let mut terminal = Terminal::new(CrosstermBackend::new(stdout))
+        .expect("Creating a terminal should always succeed");
+
+    // Run the main program logic loop
+    logic_loop(&mut terminal);
+
+    // Restore terminal to its original state
+    disable_raw_mode().expect("Disabling raw mode should always succeed.");
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)
+        .expect("Leaving the alternate screen should always succeeed");
+    terminal.show_cursor().expect("Unable to show cursor");
 }

@@ -1,11 +1,13 @@
-//! Structures and functions related to the input textbox
+//! The textbox for entering commands
+//!
+//! See `elements` module documentation for more detail
 
 use ratatui::{
     style::{Color, Style},
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::appstate::{App, InputMode};
+use crate::app::{App, InputMode};
 
 /// Create the input box
 pub(crate) fn input_element(scroll: usize, app: &App) -> Paragraph<'_> {
@@ -15,8 +17,8 @@ pub(crate) fn input_element(scroll: usize, app: &App) -> Paragraph<'_> {
     #[allow(clippy::cast_possible_truncation)]
     let cast_scroll = scroll as u16;
 
-    let input = Paragraph::new(app.input.value())
-        .style(match app.input_mode {
+    let input = Paragraph::new(app.get_input().value())
+        .style(match app.get_input_mode() {
             InputMode::Normal => Style::default(),
             InputMode::Editing => Style::default().fg(Color::Yellow),
         })
