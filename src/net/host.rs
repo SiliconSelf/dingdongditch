@@ -31,7 +31,7 @@ impl Display for Host {
 }
 
 impl Host {
-    fn new(mac_address: MacAddr) -> Self {
+    pub(crate) fn new(mac_address: MacAddr) -> Self {
         Self {
             mac_address,
             ip_address: None,

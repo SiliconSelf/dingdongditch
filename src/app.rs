@@ -6,12 +6,13 @@
 
 use std::collections::{HashSet, VecDeque};
 
+use crossbeam_channel::Receiver;
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
-use pnet::datalink::interfaces;
+use pnet::{datalink::interfaces, util::MacAddr};
 use tui_input::Input;
 
-use crate::net::{Host, find_plausible_interface, interface_exists};
+use crate::net::{find_plausible_interface, interface_exists, Host};
 
 /// Static value that acts as a thread-safe single source of truth for the
 /// application state
@@ -29,7 +30,7 @@ pub(crate) enum InputMode {
 }
 
 pub(crate) enum Errors {
-    NoSuchInterface
+    NoSuchInterface,
 }
 
 /// Global application state
@@ -46,6 +47,8 @@ pub(crate) struct App {
     commands: VecDeque<String>,
     /// The currently selected interface
     interface_name: String,
+    /// If the program is currently listening
+    listening: bool,
 }
 
 impl Default for App {
@@ -63,6 +66,7 @@ impl Default for App {
             input: Input::default(),
             commands: VecDeque::new(),
             interface_name: interface,
+            listening: false,
         }
     }
 }
@@ -134,12 +138,24 @@ impl App {
     }
 
     /// Change the current interface
-    pub(crate) fn interface_name(&mut self, interface_name: String) -> Result<(), Errors> {
+    pub(crate) fn interface_name(
+        &mut self,
+        interface_name: &str,
+    ) -> Result<(), Errors> {
         if interface_exists(&interface_name) {
-            self.interface_name = interface_name;
+            self.interface_name = interface_name.to_owned();
             Ok(())
         } else {
             Err(Errors::NoSuchInterface)
         }
+    }
+    /// Return listening status
+    pub(crate) fn get_listening(&self) -> bool {
+        self.listening
+    }
+
+    /// Toggle listening
+    pub(crate) fn toggle_listening(&mut self) {
+        self.listening = !self.listening;
     }
 }

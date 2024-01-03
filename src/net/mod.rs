@@ -12,4 +12,5 @@ mod listener;
 mod port;
 
 pub(crate) use host::Host;
-pub(crate) use interface::find_plausible_interface;
+pub(crate) use interface::{find_plausible_interface, interface_exists};
+pub(crate) use listener::*;

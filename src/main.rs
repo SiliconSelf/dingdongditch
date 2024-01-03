@@ -11,6 +11,7 @@ use crossterm::{
         LeaveAlternateScreen,
     },
 };
+use net::Host;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     Terminal,
@@ -25,14 +26,20 @@ mod ui;
 /// The main logic loop of the app
 fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
     loop {
-        // TODO: Get new data from listeners
+        // Get new data from listener
+        if let Some(new_addresses) = net::listen() {
+            let mut write_handle = APP_STATE.write();
+            for new in new_addresses {
+                write_handle.add_host(Host::new(new));
+            }
+        }
         // Draw UI
         let Ok(_) = terminal.draw(ui::render_ui) else {
             break;
         };
         // Handle user input
         key_handler::handle_keys();
-        // TODO: Process any user commands
+        // Process any user commands
         let mut write_handle = APP_STATE.write();
         let shared_commands = write_handle.get_commands_mut();
         if !shared_commands.is_empty() {
@@ -41,6 +48,18 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
                 match Command::try_from(command.clone()) {
                     Ok(Command::Quit) => {
                         return;
+                    }
+                    Ok(Command::Listen) => {
+                        write_handle.toggle_listening();
+                    }
+                    Ok(Command::ChangeInterface(i)) => {
+                        match write_handle.interface_name(&i) {
+                            Ok(()) => {}
+                            Err(app::Errors::NoSuchInterface) => write_handle
+                                .last_error(Some(format!(
+                                    "No such interface: {i}"
+                                ))),
+                        }
                     }
                     Err(Errors::UnknownCommand) => {
                         write_handle.last_error(Some(format!(

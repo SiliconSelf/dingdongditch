@@ -23,7 +23,7 @@ pub(crate) fn find_plausible_interface() -> Option<String> {
 }
 
 /// Get an interface from its name as a String
-fn interface_from_name(
+pub(crate) fn interface_from_name(
     interface_name: &str,
 ) -> Option<NetworkInterface> {
     let interfaces = interfaces();
