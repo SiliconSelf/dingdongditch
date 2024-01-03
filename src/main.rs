@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use std::io;
+use std::{collections::VecDeque, io};
 
 use app::APP_STATE;
 use commands::{Command, Errors};
@@ -37,7 +37,7 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
         let shared_commands = write_handle.get_commands_mut();
         if !shared_commands.is_empty() {
             println!("Commands not empty");
-            let commands: Vec<String> = std::mem::take(shared_commands);
+            let commands: VecDeque<String> = std::mem::take(shared_commands);
             for command in commands {
                 match Command::try_from(command.clone()) {
                     Ok(Command::Quit) => {

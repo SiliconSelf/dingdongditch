@@ -4,7 +4,7 @@
 //! The main purpose of this module is the [App] struct. It manages everything
 //! from UI state to detected hosts.
 
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
@@ -39,7 +39,7 @@ pub(crate) struct App {
     /// The current input in the text box
     input: Input,
     /// The current queue of commands to process
-    commands: Vec<String>,
+    commands: VecDeque<String>,
 }
 
 // impl Default for App {
@@ -91,18 +91,22 @@ impl App {
         &mut self.input
     }
 
-    pub(crate) fn get_commands(&self) -> &Vec<String> {
+    /// Get a reference to the queued commands
+    pub(crate) fn get_commands(&self) -> &VecDeque<String> {
         &self.commands
     }
 
-    pub(crate) fn get_commands_mut(&mut self) -> &mut Vec<String> {
+    /// Get a mutable reference to the queued commands
+    pub(crate) fn get_commands_mut(&mut self) -> &mut VecDeque<String> {
         &mut self.commands
     }
 
+    /// Push a command to the stack
     pub(crate) fn push_command(&mut self, command: &str) {
-        self.commands.push(command.to_owned());
+        self.commands.push_back(command.to_owned());
     }
 
+    /// Set the last error to a new String or clear it with None
     pub(crate) fn last_error(&mut self, last_error: Option<String>) {
         self.last_error = last_error;
     }
