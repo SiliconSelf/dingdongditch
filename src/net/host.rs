@@ -21,14 +21,12 @@ pub(crate) struct Host {
 
 impl Display for Host {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut text = self.mac_address.to_string();
-        if let Some(ip) = self.ip_address {
-            text = ip.to_string();
-        };
-        if let Some(name) = &self.domain_name {
-            text = name.to_owned();
-        };
-        write!(f, "{text}")
+        if let Some(domain) = self.domain_name.clone() {
+            return write!(f, "{domain}");
+        } else if let Some(ip) = self.ip_address {
+            return write!(f, "{ip}");
+        }
+        write!(f, "{}", self.mac_address)
     }
 }
 
