@@ -149,6 +149,7 @@ impl App {
             Err(Errors::NoSuchInterface)
         }
     }
+
     /// Return listening status
     pub(crate) fn get_listening(&self) -> bool {
         self.listening

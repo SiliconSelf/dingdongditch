@@ -2,7 +2,7 @@
 
 use std::{
     collections::HashSet,
-    thread::{self, JoinHandle, spawn},
+    thread::{self, spawn, JoinHandle},
 };
 
 use crossbeam_channel::Receiver;
@@ -18,7 +18,8 @@ use crate::app::APP_STATE;
 
 /// Holds the join handle in global scope to keep it from dropping
 static LISTENER_THREAD: RwLock<Option<JoinHandle<()>>> = RwLock::new(None);
-static LISTENER_THREAD_RX: RwLock<Option<Receiver<MacAddr>>> = RwLock::new(None);
+static LISTENER_THREAD_RX: RwLock<Option<Receiver<MacAddr>>> =
+    RwLock::new(None);
 
 /// Spawn listener thread
 pub(crate) fn spawn_listener() -> Receiver<MacAddr> {
@@ -32,7 +33,9 @@ pub(crate) fn spawn_listener() -> Receiver<MacAddr> {
             Ok(_) => {
                 panic!("Unsupported channel type");
             }
-            Err(_) => { panic!("Unknown error"); },
+            Err(_) => {
+                panic!("Unknown error");
+            }
         };
     let (thread_tx, thread_rx) = crossbeam_channel::unbounded();
     let handle = thread::spawn(move || {
