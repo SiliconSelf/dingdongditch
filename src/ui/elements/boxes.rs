@@ -20,7 +20,7 @@ pub(crate) fn hosts_box_element(app: &App) -> List<'_> {
         .enumerate()
         .map(|(i, m)| {
             let style = if &i == selected_host {
-                Style::default().fg(ratatui::style::Color::Green)
+                Style::default().fg(ratatui::style::Color::Yellow)
             } else {
                 Style::default()
             };
@@ -57,13 +57,14 @@ pub(crate) fn details_box_element(app: &App) -> List<'_> {
                         None => "Unknown".to_owned(),
                     }
                 )),
-                ListItem::new(String::new()),
-                ListItem::new("Open Ports:".to_owned()),
             ];
             if let Some(ports) = current_host.get_ports() {
+                content.push(ListItem::new("Open Ports:".to_owned()));
                 for port in ports {
                     content.push(ListItem::new(format!("- {port}")));
                 }
+            } else {
+                content.push(ListItem::new("Open Ports: Not Yet Scanned".to_owned()));
             }
             content
         } else {
