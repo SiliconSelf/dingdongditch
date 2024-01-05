@@ -7,7 +7,7 @@ use std::{fmt::Display, net::IpAddr};
 use pnet::util::MacAddr;
 
 /// A structure representing a specific host detected on the network
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq)]
 pub(crate) struct Host {
     /// The MAC address of the host
     mac_address: MacAddr,
@@ -39,5 +39,25 @@ impl Host {
             domain_name: None,
             ports: None,
         }
+    }
+
+    /// Get a reference to the mac address
+    pub(crate) fn get_mac_address(&self) -> &MacAddr {
+        &self.mac_address
+    }
+
+    /// Get a reference to the IP address
+    pub(crate) fn get_ip_address(&self) -> &Option<IpAddr> {
+        &self.ip_address
+    }
+
+    /// Get a reference to the domain name
+    pub(crate) fn get_domain_name(&self) -> &Option<String> {
+        &self.domain_name
+    }
+
+    /// Get a reference to the open ports
+    pub(crate) fn get_ports(&self) -> &Option<Vec<u16>> {
+        &self.ports
     }
 }

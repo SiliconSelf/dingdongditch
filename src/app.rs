@@ -37,7 +37,7 @@ pub(crate) enum Errors {
 /// Global application state
 pub(crate) struct App {
     /// Hosts that have been detected by the program
-    detected_hosts: HashSet<Host>,
+    detected_hosts: Vec<Host>,
     /// The last error output by the program to display in the UI
     last_error: Option<String>,
     /// The current text box mode
@@ -50,6 +50,8 @@ pub(crate) struct App {
     interface_name: String,
     /// If the program is currently listening
     listening: bool,
+    /// Currently selected host
+    selected_host: usize,
 }
 
 impl Default for App {
@@ -61,13 +63,14 @@ impl Default for App {
             interface = interfaces()[0].name.clone();
         }
         Self {
-            detected_hosts: HashSet::new(),
+            detected_hosts: Vec::new(),
             last_error: None,
             input_mode: InputMode::default(),
             input: Input::default(),
             commands: VecDeque::new(),
             interface_name: interface,
             listening: false,
+            selected_host: 0,
         }
     }
 }
@@ -75,11 +78,11 @@ impl Default for App {
 impl App {
     /// Add a host to the internal `HashSet`
     pub(crate) fn add_host(&mut self, new_host: Host) {
-        self.detected_hosts.insert(new_host);
+        self.detected_hosts.push(new_host);
     }
 
     /// Get a reference to the internal `HashSet`
-    pub(crate) fn get_hosts(&self) -> &HashSet<Host> {
+    pub(crate) fn get_hosts(&self) -> &Vec<Host> {
         &self.detected_hosts
     }
 
@@ -149,5 +152,15 @@ impl App {
     /// Toggle listening
     pub(crate) fn toggle_listening(&mut self) {
         self.listening = !self.listening;
+    }
+
+    /// Assign a new currently selected host
+    pub(crate) fn selected_host(&mut self, i: usize) {
+        self.selected_host = i;
+    }
+
+    /// Get a reference to the current host
+    pub(crate) fn get_selected_host(&self) -> &usize {
+        &self.selected_host
     }
 }

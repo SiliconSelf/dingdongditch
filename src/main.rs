@@ -45,7 +45,11 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
         if !shared_commands.is_empty() {
             let commands: VecDeque<String> = std::mem::take(shared_commands);
             for command in commands {
-                match Command::try_from(command.clone()) {
+                let command_result = Command::try_from(command.clone());
+                if command_result.is_ok() {
+                    write_handle.last_error(None);
+                }
+                match command_result {
                     Ok(Command::Quit) => {
                         return;
                     }
@@ -59,6 +63,16 @@ fn logic_loop<B: Backend>(terminal: &mut Terminal<B>) {
                                 .last_error(Some(format!(
                                     "No such interface: {i}"
                                 ))),
+                        }
+                    }
+                    Ok(Command::Select(i)) => {
+                        let all_hosts = write_handle.get_hosts();
+                        if all_hosts.len() > i {
+                            write_handle.selected_host(i);
+                        } else {
+                            write_handle.last_error(Some(format!(
+                                "Specified host out of range: {i}"
+                            )));
                         }
                     }
                     Err(Errors::UnknownCommand) => {

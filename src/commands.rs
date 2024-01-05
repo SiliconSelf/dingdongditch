@@ -16,20 +16,26 @@ use regex::Regex;
 
 /// The Vec of compiled regular expressions
 static REGEXES: Lazy<Vec<(Regex, Command)>> = Lazy::new(|| {
-    vec![
-        (Regex::new(r"^q$").expect(""), Command::Quit),
-        (Regex::new(r"^quit$").expect(""), Command::Quit),
-        (
-            Regex::new(r"^i (\w+)$").expect(""),
-            Command::ChangeInterface(String::new()),
-        ),
-        (
-            Regex::new(r"^interface (\w+)$").expect(""),
-            Command::ChangeInterface(String::new()),
-        ),
-        (Regex::new(r"^l$").expect(""), Command::Listen),
-        (Regex::new(r"^listen$").expect(""), Command::Listen),
-    ]
+    // It's ok to allow unwraps here because all of these regular expressions
+    // are hardcoded constants and we know better than the compiler
+    #[allow(clippy::unwrap_used)]
+    {
+        vec![
+            (Regex::new(r"^q$").unwrap(), Command::Quit),
+            (Regex::new(r"^quit$").unwrap(), Command::Quit),
+            (
+                Regex::new(r"^i (\w+)$").unwrap(),
+                Command::ChangeInterface(String::new()),
+            ),
+            (
+                Regex::new(r"^interface (\w+)$").unwrap(),
+                Command::ChangeInterface(String::new()),
+            ),
+            (Regex::new(r"^l$").unwrap(), Command::Listen),
+            (Regex::new(r"^listen$").unwrap(), Command::Listen),
+            (Regex::new(r"^(\d+)$").unwrap(), Command::Select(0)),
+        ]
+    }
 });
 
 /// The valid commands that can be entered by a user
@@ -41,6 +47,8 @@ pub(crate) enum Command {
     ChangeInterface(String),
     /// Toggle the listener on the selected interface
     Listen,
+    /// Select a specific host to display more details about
+    Select(usize),
 }
 
 /// Possible errors that can be encountered while parsing a command
@@ -67,6 +75,12 @@ impl TryFrom<String> for Command {
                         Ok(Command::ChangeInterface(captures[1].to_owned()))
                     }
                     Command::Listen => Ok(Command::Listen),
+                    Command::Select(_) => Ok(Command::Select(
+                        captures[1].parse::<usize>().expect(
+                            "We already know this is a positive integer \
+                             because it matched the regular expression",
+                        ),
+                    )),
                 };
             }
         }

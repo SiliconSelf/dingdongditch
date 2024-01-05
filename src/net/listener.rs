@@ -23,7 +23,7 @@ static LISTENER_THREAD_RX: RwLock<Option<Receiver<MacAddr>>> =
     RwLock::new(None);
 
 /// Spawn listener thread
-pub(crate) fn spawn_listener() -> Receiver<MacAddr> {
+pub(crate) fn spawn_listener() {
     let read_handle = APP_STATE.read();
     let interface = read_handle.get_interface_name();
     // FIXME: Don't use unwrap here
@@ -53,7 +53,8 @@ pub(crate) fn spawn_listener() -> Receiver<MacAddr> {
     });
     let mut write_handle = LISTENER_THREAD.write();
     *write_handle = Some(handle);
-    thread_rx
+    let mut write_handle = LISTENER_THREAD_RX.write();
+    *write_handle = Some(thread_rx);
 }
 
 /// Kill the currently running listener thread
@@ -72,9 +73,7 @@ fn start_stop_listener() {
         (app_read_handle.get_listening(), thread_read_handle.is_some())
     };
     if listener_enabled && !listener_running {
-        let mut write_handle = LISTENER_THREAD_RX.write();
-        let thread_receiver = spawn_listener();
-        *write_handle = Some(thread_receiver);
+        spawn_listener();
     }
     if !listener_enabled && listener_running {
         kill_listener();
