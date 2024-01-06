@@ -4,7 +4,7 @@
 //! The main purpose of this module is the [App] struct. It manages everything
 //! from UI state to detected hosts.
 
-use std::collections::{HashSet, VecDeque};
+use std::collections::VecDeque;
 
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
