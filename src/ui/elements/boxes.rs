@@ -64,7 +64,9 @@ pub(crate) fn details_box_element(app: &App) -> List<'_> {
                     content.push(ListItem::new(format!("- {port}")));
                 }
             } else {
-                content.push(ListItem::new("Open Ports: Not Yet Scanned".to_owned()));
+                content.push(ListItem::new(
+                    "Open Ports: Not Yet Scanned".to_owned(),
+                ));
             }
             content
         } else {
