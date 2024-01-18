@@ -27,7 +27,7 @@ pub(crate) fn spawn_listener() {
     let read_handle = APP_STATE.read();
     let interface = read_handle.get_interface_name();
     // FIXME: Don't use unwrap here
-    let interface = interface_from_name(interface).unwrap();
+    let interface = interface_from_name(interface).expect("Tried to spawn listener on invalid interface");
     let (_, mut interface_rx) =
         match datalink::channel(&interface, Config::default()) {
             Ok(Ethernet(tx, rx)) => (tx, rx),
