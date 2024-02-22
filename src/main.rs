@@ -10,8 +10,11 @@ async fn main() {
     let ui_arbiter = Arbiter::new();
     ui_arbiter.spawn(async move {
         let ui_actor = ui::UiActor {}.start();
-        ui_actor.send(StartMessage).await.expect("UI Actor panicked").expect("IO Error");
+        ui_actor
+            .send(StartMessage)
+            .await
+            .expect("UI Actor panicked")
+            .expect("IO Error");
         System::current().stop();
     });
-
 }
