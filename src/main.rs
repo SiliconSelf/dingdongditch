@@ -16,7 +16,7 @@ async fn main() {
     simple_logger::init().expect("Failed to initialize logging");
     let ui_arbiter = Arbiter::new();
     ui_arbiter.spawn(async move {
-        let ui_actor = ui::UiActor {}.start();
+        // let ui_actor = ui::UiActor {}.start();
         // ui_actor
         //     .send(StartMessage)
         //     .await

@@ -6,10 +6,9 @@ use actix::prelude::*;
 use pnet::{
     datalink::{self, Channel::Ethernet, Config, NetworkInterface},
     packet::ethernet::EthernetPacket,
-    util::MacAddr,
 };
 
-use super::{DetectedHost, InterfaceManagerActor, NetworkInterfaceRequest};
+use super::{InterfaceManagerActor, NetworkInterfaceRequest};
 use crate::net::NewHostMessage;
 
 /// An actor for a specific interface

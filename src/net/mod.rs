@@ -23,14 +23,17 @@ pub(crate) fn get_interfaces() -> Vec<NetworkInterface> {
     sensible_interfaces
 }
 
+/// A host that has been detected
 pub(crate) struct DetectedHost {
-    mac_address: MacAddr,
+    /// The MAC address of the host
+    _mac_address: MacAddr,
 }
 
 impl DetectedHost {
+    /// Create a new detected host
     pub(crate) fn new(mac_address: MacAddr) -> Self {
         Self {
-            mac_address,
+            _mac_address: mac_address,
         }
     }
 }
