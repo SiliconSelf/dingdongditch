@@ -7,7 +7,8 @@ mod net;
 mod ui;
 
 use net::{
-    InterfaceActor, InterfaceManagerActor, Listen, NetworkInterfaceCountRequest, NewDataQuery
+    InterfaceActor, InterfaceManagerActor, Listen,
+    NetworkInterfaceCountRequest, NewDataQuery,
 };
 
 #[actix::main]
@@ -36,7 +37,10 @@ async fn main() {
         adapter_arbiter.do_send(Listen);
     }
     loop {
-        interface_actor_manager.send(NewDataQuery).await.expect("This really doesn't matter");
+        interface_actor_manager
+            .send(NewDataQuery)
+            .await
+            .expect("This really doesn't matter");
         std::thread::sleep(std::time::Duration::from_millis(250));
     }
 }

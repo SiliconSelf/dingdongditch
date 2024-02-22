@@ -1,5 +1,8 @@
 //! Functionality related to networking
-use pnet::{datalink::{interfaces, NetworkInterface}, util::MacAddr};
+use pnet::{
+    datalink::{interfaces, NetworkInterface},
+    util::MacAddr,
+};
 
 mod interface_actor;
 mod manager_actor;
@@ -21,13 +24,13 @@ pub(crate) fn get_interfaces() -> Vec<NetworkInterface> {
 }
 
 pub(crate) struct DetectedHost {
-    mac_address: MacAddr
+    mac_address: MacAddr,
 }
 
 impl DetectedHost {
     pub(crate) fn new(mac_address: MacAddr) -> Self {
         Self {
-            mac_address
+            mac_address,
         }
     }
 }

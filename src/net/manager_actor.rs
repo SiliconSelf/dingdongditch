@@ -15,7 +15,7 @@ pub(crate) struct InterfaceManagerActor {
     /// individual interface actor
     interfaces: Mutex<Vec<NetworkInterface>>,
     /// A collection of the hosts detected by various interfaces
-    detected_hosts: HashMap<String, Vec<DetectedHost>>
+    detected_hosts: HashMap<String, Vec<DetectedHost>>,
 }
 
 impl Actor for InterfaceManagerActor {
@@ -42,7 +42,7 @@ impl InterfaceManagerActor {
         let interfaces = Mutex::new(interfaces);
         Self {
             interfaces,
-            detected_hosts
+            detected_hosts,
         }
     }
 }
@@ -93,7 +93,12 @@ pub(crate) struct NewDataQuery;
 
 impl Handler<NewDataQuery> for InterfaceManagerActor {
     type Result = ();
-    fn handle(&mut self, _msg: NewDataQuery, _ctx: &mut Self::Context) -> Self::Result {
+
+    fn handle(
+        &mut self,
+        _msg: NewDataQuery,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
         // log::trace!("InterfaceManagerActor received {msg:?}");
     }
 }
@@ -105,14 +110,22 @@ pub(crate) struct NewHostMessage {
     /// The interface the host was detected on
     pub(crate) interface_name: String,
     /// The mac address of the detected host
-    pub(crate) address: MacAddr
+    pub(crate) address: MacAddr,
 }
 
 impl Handler<NewHostMessage> for InterfaceManagerActor {
     type Result = ();
-    fn handle(&mut self, msg: NewHostMessage, _ctx: &mut Self::Context) -> Self::Result {
+
+    fn handle(
+        &mut self,
+        msg: NewHostMessage,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
         log::trace!("InterfaceManagerActor received {msg:?}");
-        let detections = self.detected_hosts.get_mut(&msg.interface_name).expect("Interface not defined in hashmap");
+        let detections = self
+            .detected_hosts
+            .get_mut(&msg.interface_name)
+            .expect("Interface not defined in hashmap");
         let new_host = DetectedHost::new(msg.address);
         detections.push(new_host);
     }

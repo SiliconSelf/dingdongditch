@@ -3,14 +3,14 @@
 use std::collections::HashSet;
 
 use actix::prelude::*;
-use pnet::datalink::{self, Config, NetworkInterface};
-use pnet::datalink::Channel::Ethernet;
-use pnet::packet::ethernet::EthernetPacket;
-use pnet::util::MacAddr;
-
-use crate::net::NewHostMessage;
+use pnet::{
+    datalink::{self, Channel::Ethernet, Config, NetworkInterface},
+    packet::ethernet::EthernetPacket,
+    util::MacAddr,
+};
 
 use super::{DetectedHost, InterfaceManagerActor, NetworkInterfaceRequest};
+use crate::net::NewHostMessage;
 
 /// An actor for a specific interface
 pub(crate) struct InterfaceActor {
@@ -33,7 +33,7 @@ impl InterfaceActor {
         });
         Self {
             manager_addr,
-            interface
+            interface,
         }
     }
 }
@@ -57,13 +57,22 @@ pub(crate) struct Listen;
 
 impl Handler<Listen> for InterfaceActor {
     type Result = ();
-    fn handle(&mut self, msg: Listen, _ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("InterfaceActor for {} received {msg:?}", self.interface.name);
-        let (_, mut interface_rx) = match datalink::channel(&self.interface, Config::default()) {
-            Ok(Ethernet(tx, rx)) => (tx, rx),
-            Ok(_) => panic!("Unsupported channel type"),
-            Err(e) => panic!("Unhandled error: {e:?}")
-        };
+
+    fn handle(
+        &mut self,
+        msg: Listen,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        log::trace!(
+            "InterfaceActor for {} received {msg:?}",
+            self.interface.name
+        );
+        let (_, mut interface_rx) =
+            match datalink::channel(&self.interface, Config::default()) {
+                Ok(Ethernet(tx, rx)) => (tx, rx),
+                Ok(_) => panic!("Unsupported channel type"),
+                Err(e) => panic!("Unhandled error: {e:?}"),
+            };
         let mut detected_macs = HashSet::new();
         loop {
             let packet = interface_rx.next().expect("Listener crashed");
@@ -71,7 +80,10 @@ impl Handler<Listen> for InterfaceActor {
             if let Some(packet) = EthernetPacket::new(packet) {
                 let source = packet.get_source();
                 if detected_macs.insert(source) {
-                    self.manager_addr.do_send(NewHostMessage { interface_name: self.interface.name.clone(), address: source });
+                    self.manager_addr.do_send(NewHostMessage {
+                        interface_name: self.interface.name.clone(),
+                        address: source,
+                    });
                 }
             }
         }
