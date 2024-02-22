@@ -6,7 +6,9 @@ use actix::prelude::*;
 mod net;
 mod ui;
 
-use net::InterfaceActor;
+use net::{
+    InterfaceActor, InterfaceManagerActor, Listen, NetworkInterfaceCountRequest, NewDataQuery
+};
 
 #[actix::main]
 async fn main() {
@@ -21,14 +23,20 @@ async fn main() {
         //     .expect("IO Error");
         // System::current().stop();
     });
-    let interfaces = net::get_interfaces();
-    let interface_count = interfaces.len();
-    if interface_count == 0 {
-        log::error!("There are no attached interfaces");
-        System::current().stop();
+    let interface_actor_manager = InterfaceManagerActor::new().start();
+    let interface_count = interface_actor_manager
+        .send(NetworkInterfaceCountRequest)
+        .await
+        .expect("Failed to query number of network interfaces");
+    let new_addr = interface_actor_manager.clone();
+    let adapter_arbiter = SyncArbiter::start(interface_count, move || {
+        InterfaceActor::new(new_addr.clone())
+    });
+    for _ in 0..interface_count {
+        adapter_arbiter.do_send(Listen);
     }
-    log::debug!("Detected {interface_count} sensible interfaces");
-    let adapter_arbiter =
-        SyncArbiter::start(interface_count, InterfaceActor::new);
-    std::thread::sleep(std::time::Duration::from_secs(2));
+    loop {
+        interface_actor_manager.send(NewDataQuery).await.expect("This really doesn't matter");
+        std::thread::sleep(std::time::Duration::from_millis(250));
+    }
 }
