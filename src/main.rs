@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use actix::prelude::*;
-// use ui::StartMessage;
+use ui::StartMessage;
 
 mod net;
 mod ui;
@@ -13,16 +13,16 @@ use net::{
 
 #[actix::main]
 async fn main() {
-    simple_logger::init().expect("Failed to initialize logging");
+    // simple_logger::init().expect("Failed to initialize logging");
     let ui_arbiter = Arbiter::new();
     ui_arbiter.spawn(async move {
-        // let ui_actor = ui::UiActor {}.start();
-        // ui_actor
-        //     .send(StartMessage)
-        //     .await
-        //     .expect("UI Actor panicked")
-        //     .expect("IO Error");
-        // System::current().stop();
+        let ui_actor = ui::UiActor {}.start();
+        ui_actor
+            .send(StartMessage)
+            .await
+            .expect("UI Actor panicked")
+            .expect("IO Error");
+        System::current().stop();
     });
     let interface_actor_manager = InterfaceManagerActor::new().start();
     let interface_count = interface_actor_manager

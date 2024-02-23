@@ -1,5 +1,7 @@
 //! Contains functionality related to the TUI
 
+mod components;
+
 use std::{
     io::{self, stdout},
     time::Duration,
@@ -15,7 +17,7 @@ use crossterm::{
 };
 use ratatui::{
     backend::CrosstermBackend,
-    widgets::{Block, Borders, Paragraph},
+    layout::{Constraint, Direction, Layout},
     Frame, Terminal,
 };
 
@@ -62,9 +64,24 @@ impl Handler<StartMessage> for UiActor {
 
 /// Function to draw the UI
 fn ui(frame: &mut Frame) {
-    frame.render_widget(
-        Paragraph::new("Hello World!")
-            .block(Block::default().title("Greeting").borders(Borders::ALL)),
-        frame.size(),
-    );
+    // Compute the main layout
+    let main_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints(
+            [
+                Constraint::Length(1),
+                Constraint::Min(1),
+                Constraint::Length(1),
+                Constraint::Length(3),
+            ]
+            .as_ref(),
+        )
+        .split(frame.size());
+    // Calculate the boxes for results
+    let box_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .margin(0)
+        .constraints([Constraint::Percentage(30), Constraint::Percentage(70)])
+        .split(main_chunks[1]);
 }
