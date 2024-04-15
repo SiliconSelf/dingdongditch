@@ -60,7 +60,7 @@ workspace = true
 
 [dependencies]
 actix = "0.13.3"
-anyhow = "1.0.81"
+anyhow = "1.0.82"
 crossbeam-channel = "0.5.12"
 crossterm = "0.27.0"
 futures = { version = "0.3.30", features = ["executor"] }
