@@ -59,7 +59,7 @@ wildcard_dependencies = "warn"
 workspace = true
 
 [dependencies]
-actix = "0.13.3"
+actix = "0.13.5"
 anyhow = "1.0.86"
 crossbeam-channel = "0.5.13"
 crossterm = "0.27.0"
